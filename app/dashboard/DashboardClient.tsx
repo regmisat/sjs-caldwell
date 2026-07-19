@@ -68,6 +68,19 @@ interface DashboardClientProps {
 
 const DONATION_URL = "https://secure.qgiv.com/for/socialjusticesymposium";
 
+type DashboardTab = "overview" | "sessions" | "certificate" | "edit";
+
+const DASHBOARD_TABS: {
+  key: DashboardTab;
+  shortLabel: string;
+  label: string;
+}[] = [
+  { key: "overview", shortLabel: "Overview", label: "Overview" },
+  { key: "sessions", shortLabel: "Sessions", label: "Registered Sessions" },
+  { key: "certificate", shortLabel: "Certificate", label: "Certificate" },
+  { key: "edit", shortLabel: "Profile", label: "Edit Profile" },
+];
+
 function SectionCard({
   title,
   description,
@@ -161,7 +174,7 @@ export default function DashboardClient({
   donationSuccess = false,
 }: DashboardClientProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"overview" | "edit">("overview");
+  const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const [formData, setFormData] = useState({
     firstName: user.firstName || "",
     lastName: user.lastName || "",
@@ -327,31 +340,35 @@ export default function DashboardClient({
             <DonateCard />
           </div>
 
-          {/* Tabs */}
-          <div className="mb-6 flex gap-1 rounded-xl border border-white/15 bg-black/30 p-1 backdrop-blur-sm">
-            {(
-              [
-                ["overview", "Overview"],
-                ["edit", "Edit Profile"],
-              ] as const
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`flex-1 rounded-lg px-3 py-2.5 text-sm sm:text-base font-semibold transition-colors ${
-                  activeTab === key
-                    ? "bg-white text-gray-900"
-                    : "text-white/70 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+          {/* Tabs — scrollable on mobile */}
+          <div className="mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div
+              role="tablist"
+              aria-label="Dashboard sections"
+              className="flex gap-1 overflow-x-auto rounded-xl border border-white/15 bg-black/30 p-1 backdrop-blur-sm scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {DASHBOARD_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  role="tab"
+                  type="button"
+                  aria-selected={activeTab === tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`shrink-0 rounded-lg px-3 py-2.5 text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap transition-colors sm:flex-1 ${
+                    activeTab === tab.key
+                      ? "bg-white text-gray-900"
+                      : "text-white/70 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  <span className="sm:hidden">{tab.shortLabel}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {activeTab === "overview" ? (
+          {activeTab === "overview" && (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-              {/* Main column */}
               <div className="space-y-5 lg:col-span-8">
                 <SectionCard
                   title="Registration & Payment"
@@ -400,36 +417,6 @@ export default function DashboardClient({
                     userId={user.id}
                     userName={`${formData.firstName} ${formData.lastName}`}
                     userEmail={user.primaryEmailAddress || ""}
-                  />
-                </SectionCard>
-
-                <SectionCard
-                  title="Registered Sessions"
-                  description="Sessions you have signed up for"
-                  action={
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push("/schedule")}
-                      className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                    >
-                      Browse Schedule
-                    </Button>
-                  }
-                >
-                  <RegisteredSessions
-                    firstName={formData.firstName}
-                    lastName={formData.lastName}
-                  />
-                </SectionCard>
-
-                <SectionCard
-                  title="Certificate"
-                  description="Download your certificate of participation"
-                >
-                  <CertificateDownload
-                    firstName={formData.firstName}
-                    lastName={formData.lastName}
                   />
                 </SectionCard>
 
@@ -532,7 +519,6 @@ export default function DashboardClient({
                 )}
               </div>
 
-              {/* Desktop sidebar — donation always visible */}
               <aside className="hidden lg:col-span-4 lg:block">
                 <div className="sticky top-28 space-y-4">
                   <DonateCard />
@@ -543,16 +529,22 @@ export default function DashboardClient({
                     </h3>
                     <div className="mt-4 space-y-2">
                       <Button
+                        onClick={() => setActiveTab("sessions")}
+                        className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border border-white/20"
+                      >
+                        Registered Sessions
+                      </Button>
+                      <Button
+                        onClick={() => setActiveTab("certificate")}
+                        className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border border-white/20"
+                      >
+                        Certificate
+                      </Button>
+                      <Button
                         onClick={() => router.push("/schedule")}
                         className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border border-white/20"
                       >
                         View Schedule
-                      </Button>
-                      <Button
-                        onClick={() => router.push("/speakers")}
-                        className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border border-white/20"
-                      >
-                        Meet Speakers
                       </Button>
                       <Button
                         onClick={() => setActiveTab("edit")}
@@ -588,7 +580,47 @@ export default function DashboardClient({
                 </div>
               </aside>
             </div>
-          ) : (
+          )}
+
+          {activeTab === "sessions" && (
+            <div className="mx-auto max-w-4xl">
+              <SectionCard
+                title="Registered Sessions"
+                description="Sessions you have signed up for"
+                action={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push("/schedule")}
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Browse Schedule
+                  </Button>
+                }
+              >
+                <RegisteredSessions
+                  firstName={formData.firstName}
+                  lastName={formData.lastName}
+                />
+              </SectionCard>
+            </div>
+          )}
+
+          {activeTab === "certificate" && (
+            <div className="mx-auto max-w-4xl">
+              <SectionCard
+                title="Certificate"
+                description="Download your certificate of participation"
+              >
+                <CertificateDownload
+                  firstName={formData.firstName}
+                  lastName={formData.lastName}
+                />
+              </SectionCard>
+            </div>
+          )}
+
+          {activeTab === "edit" && (
             <div className="mx-auto max-w-3xl">
               <SectionCard
                 title="Edit Your Information"
