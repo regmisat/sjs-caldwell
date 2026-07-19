@@ -122,7 +122,7 @@ export default function Speakers() {
 
           {/* Loading Content */}
           <div className="relative z-10 flex flex-col items-center justify-center w-full min-h-screen py-24 sm:py-28 px-4">
-            <div className="max-w-4xl mx-auto text-center w-full">
+            <div className="max-w-5xl mx-auto text-center w-full">
               {/* Logo Skeleton */}
               <div className="mx-auto mb-8 sm:mb-12">
                 <Skeleton className="h-[150px] w-[150px] sm:h-[200px] sm:w-[200px] rounded-lg mx-auto bg-white/20" />
@@ -131,21 +131,36 @@ export default function Speakers() {
               {/* Heading Skeleton */}
               <div className="mb-12 sm:mb-16">
                 <Skeleton className="h-12 sm:h-16 w-64 sm:w-80 mx-auto mb-4 bg-white/20" />
-                <Skeleton className="h-1 w-20 sm:w-32 mx-auto bg-white/30" />
+                <Skeleton className="h-1 w-20 sm:w-32 mx-auto bg-red-500/40" />
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-12 sm:space-y-16">
+                {/* Keynote Speaker Skeleton */}
+                <div className="rounded-3xl border border-red-400/30 bg-red-950/30 p-6 sm:p-12">
+                  <Skeleton className="h-7 w-40 mx-auto mb-10 bg-red-400/30 rounded-full" />
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+                    <Skeleton className="w-52 h-52 sm:w-64 sm:h-64 rounded-full bg-white/20 flex-shrink-0" />
+                    <div className="flex-1 w-full space-y-4">
+                      <Skeleton className="h-10 w-72 bg-white/20" />
+                      <Skeleton className="h-6 w-56 bg-white/20" />
+                      <Skeleton className="h-32 w-full bg-white/20" />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Featured Speakers Skeleton */}
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 sm:p-12 border border-white/20">
-                  <Skeleton className="h-10 w-64 mx-auto mb-10 bg-white/20" />
+                <div>
+                  <Skeleton className="h-7 w-28 mx-auto mb-4 bg-amber-400/30 rounded-full" />
+                  <Skeleton className="h-10 w-64 mx-auto mb-8 bg-white/20" />
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="bg-white/5 rounded-xl p-6 sm:p-8 border border-white/10 mb-6 last:mb-0"
+                      className="rounded-2xl border border-amber-400/20 bg-white/5 p-6 sm:p-8 mb-6 last:mb-0"
                     >
                       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                         <Skeleton className="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-white/20 flex-shrink-0" />
                         <div className="flex-1 w-full space-y-3">
+                          <Skeleton className="h-5 w-32 bg-amber-400/20 rounded-full" />
                           <Skeleton className="h-7 w-60 bg-white/20" />
                           <Skeleton className="h-5 w-80 bg-white/20" />
                           <Skeleton className="h-24 w-full bg-white/20" />
@@ -155,19 +170,8 @@ export default function Speakers() {
                   ))}
                 </div>
 
-                {/* Keynote Speaker Skeleton */}
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 sm:p-12 border border-white/20">
-                  <Skeleton className="h-8 w-48 mx-auto mb-8 bg-white/20" />
-                  <div className="flex flex-col items-center space-y-6">
-                    <Skeleton className="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-white/20" />
-                    <Skeleton className="h-8 w-64 bg-white/20" />
-                    <Skeleton className="h-6 w-80 bg-white/20" />
-                    <Skeleton className="h-32 w-full bg-white/20" />
-                  </div>
-                </div>
-
                 {/* Breakout Speakers Skeleton */}
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 sm:p-12 border border-white/20">
+                <div className="bg-white/8 backdrop-blur-md rounded-2xl p-6 sm:p-10 border border-white/15">
                   <Skeleton className="h-8 w-64 mb-8 bg-white/20" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {[1, 2, 3, 4].map((i) => (
@@ -214,7 +218,7 @@ export default function Speakers() {
 
         {/* Main Content */}
         <div className="relative z-10 flex flex-col items-center justify-center w-full min-h-screen py-24 sm:py-28 px-4">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-5xl mx-auto text-center w-full">
             {/* Logo */}
             <div className="mx-auto mb-8 sm:mb-12">
               <Image
@@ -231,222 +235,289 @@ export default function Speakers() {
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-tight mb-4 font-serif">
                 Our Speakers
               </h1>
-              <div className="w-20 sm:w-32 h-1 bg-white mx-auto"></div>
+              <div className="w-20 sm:w-32 h-1 bg-red-500 mx-auto"></div>
+              <p className="mt-5 text-sm sm:text-base text-white/70 max-w-xl mx-auto">
+                Distinguished leaders shaping conversations on truth, justice,
+                and opportunity.
+              </p>
             </div>
 
-            <div className="space-y-8">
-              {/* Keynote Speaker */}
+            <div className="space-y-12 sm:space-y-16">
+              {/* Keynote Speaker — spotlight */}
               {keynoteSpeaker && (
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 sm:p-12 border border-white/20 shadow-2xl">
-                  <div className="space-y-6">
-                    <div className="space-y-2 mb-10">
-                      <h2 className="text-3xl sm:text-4xl font-bold text-white font-serif">
+                <section className="relative overflow-hidden rounded-3xl border border-red-400/40 bg-gradient-to-br from-red-950/50 via-black/40 to-black/50 shadow-2xl backdrop-blur-md">
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-40"
+                    style={{
+                      background:
+                        "radial-gradient(ellipse 80% 60% at 20% 0%, rgba(239,68,68,0.35), transparent 55%)",
+                    }}
+                  />
+                  <div className="relative p-6 sm:p-10 md:p-12">
+                    <div className="mb-8 sm:mb-10 flex flex-col items-center gap-3">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-red-400/50 bg-red-500/20 px-4 py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-red-100">
+                      
                         Keynote Speaker
-                      </h2>
+                      </span>
+                      <h2 className="sr-only">Keynote Speaker</h2>
                     </div>
 
-                    <div className="flex flex-col items-center space-y-6">
-                      {/* Speaker Photo */}
-                      <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-4 border-white/30 shadow-2xl">
-                        {keynoteSpeaker.photo_url ? (
-                          <Image
-                            src={keynoteSpeaker.photo_url}
-                            alt={keynoteSpeaker.name}
-                            width={224}
-                            height={224}
-                            className="object-cover object-top w-full h-full"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-white/20 flex items-center justify-center">
-                            <span className="text-6xl sm:text-7xl font-bold text-white">
-                              {keynoteSpeaker.name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Speaker Info */}
-                      <div className="text-center">
-                        <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                          {keynoteSpeaker.name}
-                        </h3>
-                        {keynoteSpeaker.title && (
-                          <p className="text-lg sm:text-xl text-white italic">
-                            {keynoteSpeaker.title}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Bio */}
-                      {keynoteSpeaker.bio && (
-                        <div className="text-left max-w-3xl space-y-4 text-white">
-                          {expandedSpeaker === keynoteSpeaker.id ? (
-                            <div
-                              className="prose prose-invert prose-sm sm:prose-base prose-p:text-white prose-headings:text-white prose-strong:text-white prose-ul:text-white prose-ol:text-white prose-li:text-white max-w-none"
-                              dangerouslySetInnerHTML={{
-                                __html: keynoteSpeaker.bio.replaceAll(
-                                  "&nbsp;",
-                                  " ",
-                                ),
-                              }}
+                    <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-10">
+                      {/* Portrait */}
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-red-400 via-red-500/80 to-amber-500/60 opacity-80 blur-[2px]" />
+                        <div className="relative w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-full overflow-hidden border-[3px] border-white/40 shadow-2xl ring-4 ring-red-500/20">
+                          {keynoteSpeaker.photo_url ? (
+                            <Image
+                              src={keynoteSpeaker.photo_url}
+                              alt={keynoteSpeaker.name}
+                              width={288}
+                              height={288}
+                              className="object-cover object-top w-full h-full"
+                              priority
                             />
                           ) : (
-                            <div
-                              className="prose prose-invert prose-sm sm:prose-base prose-p:text-white/90 prose-headings:text-white prose-strong:text-white max-w-none"
-                              dangerouslySetInnerHTML={{
-                                __html:
-                                  keynoteSpeaker.bio
-                                    .replaceAll("&nbsp;", " ")
-                                    .split("</p>")[0] + "</p>",
-                              }}
-                            />
-                          )}
-
-                          {keynoteSpeaker.bio.split("</p>").length > 1 && (
-                            <button
-                              onClick={() =>
-                                setExpandedSpeaker(
-                                  expandedSpeaker === keynoteSpeaker.id
-                                    ? null
-                                    : keynoteSpeaker.id,
-                                )
-                              }
-                              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white transition-colors duration-200 group"
-                            >
-                              <span className="underline underline-offset-4 decoration-white/40 group-hover:decoration-white">
-                                {expandedSpeaker === keynoteSpeaker.id
-                                  ? "See Less"
-                                  : "See More"}
+                            <div className="w-full h-full bg-red-900/40 flex items-center justify-center">
+                              <span className="text-6xl sm:text-7xl font-bold text-white">
+                                {keynoteSpeaker.name.charAt(0).toUpperCase()}
                               </span>
-                              <svg
-                                className={`w-4 h-4 transition-transform duration-300 ${
-                                  expandedSpeaker === keynoteSpeaker.id
-                                    ? "rotate-180"
-                                    : ""
-                                }`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M19 9l-7 7-7-7"
-                                />
-                              </svg>
-                            </button>
+                            </div>
                           )}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Sessions */}
-                      {keynoteSpeaker.sessions &&
-                        keynoteSpeaker.sessions.length > 0 && (
-                          <div className="w-full max-w-3xl text-left">
-                            <p className="text-sm text-left font-semibold text-white mb-3">
-                              Presenting at:
+                      {/* Info */}
+                      <div className="flex-1 text-center md:text-left space-y-5 min-w-0">
+                        <div>
+                          <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white font-serif tracking-tight leading-tight">
+                            {keynoteSpeaker.name}
+                          </h3>
+                          {keynoteSpeaker.title && (
+                            <p className="mt-3 text-base sm:text-lg md:text-xl text-red-100/90 italic leading-snug">
+                              {keynoteSpeaker.title}
                             </p>
-                            <div className="space-y-2">
-                              {keynoteSpeaker.sessions.map((session) => (
-                                <div
-                                  key={session.id}
-                                  className="bg-white/10 rounded-lg p-3 border border-white/20"
+                          )}
+                        </div>
+
+                        {keynoteSpeaker.bio && (
+                          <div className="text-left space-y-4 text-white/95">
+                            {expandedSpeaker === keynoteSpeaker.id ? (
+                              <div
+                                className="prose prose-invert prose-sm sm:prose-base prose-p:text-white/90 prose-headings:text-white prose-strong:text-white prose-ul:text-white prose-ol:text-white prose-li:text-white max-w-none"
+                                dangerouslySetInnerHTML={{
+                                  __html: keynoteSpeaker.bio.replaceAll(
+                                    "&nbsp;",
+                                    " ",
+                                  ),
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className="prose prose-invert prose-sm sm:prose-base prose-p:text-white/85 prose-headings:text-white prose-strong:text-white max-w-none"
+                                dangerouslySetInnerHTML={{
+                                  __html:
+                                    keynoteSpeaker.bio
+                                      .replaceAll("&nbsp;", " ")
+                                      .split("</p>")[0] + "</p>",
+                                }}
+                              />
+                            )}
+
+                            {keynoteSpeaker.bio.split("</p>").length > 1 && (
+                              <button
+                                onClick={() =>
+                                  setExpandedSpeaker(
+                                    expandedSpeaker === keynoteSpeaker.id
+                                      ? null
+                                      : keynoteSpeaker.id,
+                                  )
+                                }
+                                className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-red-200 hover:text-white transition-colors duration-200 group"
+                              >
+                                <span className="underline underline-offset-4 decoration-red-300/50 group-hover:decoration-white">
+                                  {expandedSpeaker === keynoteSpeaker.id
+                                    ? "See Less"
+                                    : "See More"}
+                                </span>
+                                <svg
+                                  className={`w-4 h-4 transition-transform duration-300 ${
+                                    expandedSpeaker === keynoteSpeaker.id
+                                      ? "rotate-180"
+                                      : ""
+                                  }`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
                                 >
-                                  <div className="flex items-start justify-between gap-2">
-                                    <div className="flex-1">
-                                      <p className="text-white font-medium text-sm">
-                                        {session.title}
-                                      </p>
-                                      {session.location && (
-                                        <div className="flex items-center gap-1 text-xs text-white/70 mt-1">
-                                          <svg
-                                            className="w-3 h-3 flex-shrink-0"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                          >
-                                            <path
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              strokeWidth={2}
-                                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                            />
-                                            <path
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              strokeWidth={2}
-                                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                            />
-                                          </svg>
-                                          {session.location}
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="text-xs text-white/70 whitespace-nowrap">
-                                      {new Date(
-                                        session.start_time,
-                                      ).toLocaleTimeString("en-US", {
-                                        hour: "numeric",
-                                        minute: "2-digit",
-                                        hour12: true,
-                                      })}
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                  />
+                                </svg>
+                              </button>
+                            )}
                           </div>
                         )}
+
+                        {keynoteSpeaker.sessions &&
+                          keynoteSpeaker.sessions.length > 0 && (
+                            <div className="w-full text-left pt-2">
+                              <p className="text-xs font-bold uppercase tracking-wider text-red-200/80 mb-3">
+                                Presenting at
+                              </p>
+                              <div className="space-y-2">
+                                {keynoteSpeaker.sessions.map((session) => (
+                                  <div
+                                    key={session.id}
+                                    className="rounded-xl bg-white/10 p-3.5 border border-red-400/20"
+                                  >
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex-1">
+                                        <p className="text-white font-medium text-sm">
+                                          {session.title}
+                                        </p>
+                                        {session.location && (
+                                          <div className="flex items-center gap-1 text-xs text-white/70 mt-1">
+                                            <svg
+                                              className="w-3 h-3 flex-shrink-0"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                              />
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                              />
+                                            </svg>
+                                            {session.location}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="text-xs text-red-100/80 whitespace-nowrap font-medium">
+                                        {new Date(
+                                          session.start_time,
+                                        ).toLocaleTimeString("en-US", {
+                                          hour: "numeric",
+                                          minute: "2-digit",
+                                          hour12: true,
+                                        })}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </section>
               )}
 
               {/* Featured Speakers */}
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 sm:p-12 border border-white/20 shadow-2xl">
-                <div className="space-y-2 mb-10">
+              <section>
+                <div className="mb-8 sm:mb-10 text-center">
+                 
                   <h2 className="text-3xl sm:text-4xl font-bold text-white font-serif">
                     Featured Speakers
                   </h2>
+                  <div className="mt-3 w-16 h-0.5 bg-amber-400/80 mx-auto" />
                 </div>
 
-                <div className="space-y-10">
-                  {featuredSpeakers.map((speaker) => {
+                <div className="space-y-6 sm:space-y-8">
+                  {featuredSpeakers.map((speaker, index) => {
                     const isExpanded = expandedSpeaker === speaker.id;
                     const previewText = speaker.bio[0];
                     const hasMore = speaker.bio.length > 1;
+                    const isLead = index === 0;
 
                     return (
-                      <div
+                      <article
                         key={speaker.id}
-                        className="bg-white/5 backdrop-blur-sm rounded-xl p-6 sm:p-8 border border-white/10 hover:border-white/25 transition-all duration-300"
+                        className={`relative overflow-hidden rounded-2xl border backdrop-blur-md transition-all duration-300 hover:border-amber-400/40 ${
+                          isLead
+                            ? "border-amber-400/35 bg-gradient-to-br from-amber-950/35 via-black/35 to-black/45 p-6 sm:p-9 shadow-2xl"
+                            : "border-white/15 bg-white/10 p-5 sm:p-7 shadow-xl"
+                        }`}
                       >
-                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                          {/* Photo */}
-                          <div className="flex-shrink-0">
-                            <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden border-4 border-white/30 shadow-xl">
+                        {isLead && (
+                          <div
+                            className="pointer-events-none absolute inset-0 opacity-30"
+                            style={{
+                              background:
+                                "radial-gradient(ellipse 70% 50% at 10% 0%, rgba(251,191,36,0.25), transparent 50%)",
+                            }}
+                          />
+                        )}
+
+                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-7">
+                          <div className="relative flex-shrink-0">
+                            <div
+                              className={`absolute -inset-0.5 rounded-full opacity-70 blur-[1px] ${
+                                isLead
+                                  ? "bg-gradient-to-br from-amber-300 via-amber-500/70 to-red-400/50"
+                                  : "bg-gradient-to-br from-white/40 to-white/10"
+                              }`}
+                            />
+                            <div
+                              className={`relative rounded-full overflow-hidden border-[3px] shadow-xl ${
+                                isLead
+                                  ? "w-40 h-40 sm:w-52 sm:h-52 border-amber-200/50 ring-4 ring-amber-500/15"
+                                  : "w-32 h-32 sm:w-40 sm:h-40 border-white/35"
+                              }`}
+                            >
                               <Image
                                 src={speaker.photo}
                                 alt={speaker.name}
-                                width={176}
-                                height={176}
+                                width={isLead ? 208 : 160}
+                                height={isLead ? 208 : 160}
                                 className="object-cover object-top w-full h-full"
                               />
                             </div>
                           </div>
 
-                          {/* Info */}
-                          <div className="flex-1 text-center sm:text-left">
-                            <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                          <div className="flex-1 text-center sm:text-left min-w-0">
+                            <div className="mb-2 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                  isLead
+                                    ? "bg-amber-500/25 text-amber-100 border border-amber-400/40"
+                                    : "bg-white/10 text-white/80 border border-white/20"
+                                }`}
+                              >
+                                Featured Speaker
+                              </span>
+                            </div>
+                            <h3
+                              className={`font-bold text-white font-serif leading-tight ${
+                                isLead
+                                  ? "text-2xl sm:text-3xl md:text-4xl"
+                                  : "text-xl sm:text-2xl"
+                              }`}
+                            >
                               {speaker.name}
                             </h3>
-                            <p className="text-sm sm:text-base text-white italic mb-4">
+                            <p
+                              className={`italic mt-2 mb-4 leading-snug ${
+                                isLead
+                                  ? "text-sm sm:text-base text-amber-50/90"
+                                  : "text-sm sm:text-base text-white/80"
+                              }`}
+                            >
                               {speaker.title}
                             </p>
 
-                            {/* Bio */}
-                            <div className="text-sm sm:text-base text-white leading-relaxed space-y-3">
+                            <div className="text-sm sm:text-base text-white/90 leading-relaxed space-y-3 text-left">
                               <p>{previewText}</p>
                               {isExpanded &&
                                 speaker.bio
@@ -463,9 +534,19 @@ export default function Speakers() {
                                     isExpanded ? null : speaker.id,
                                   )
                                 }
-                                className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white transition-colors duration-200 group"
+                                className={`mt-4 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 group ${
+                                  isLead
+                                    ? "text-amber-200 hover:text-white"
+                                    : "text-white/80 hover:text-white"
+                                }`}
                               >
-                                <span className="underline underline-offset-4 decoration-white/40 group-hover:decoration-white">
+                                <span
+                                  className={`underline underline-offset-4 group-hover:decoration-white ${
+                                    isLead
+                                      ? "decoration-amber-300/50"
+                                      : "decoration-white/40"
+                                  }`}
+                                >
                                   {isExpanded ? "See Less" : "See More"}
                                 </span>
                                 <svg
@@ -487,17 +568,20 @@ export default function Speakers() {
                             )}
                           </div>
                         </div>
-                      </div>
+                      </article>
                     );
                   })}
                 </div>
-              </div>
+              </section>
 
               {/* Breakout Session Speakers */}
               {breakoutSpeakers.length > 0 ? (
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 sm:p-12 border border-white/20 shadow-2xl">
-                  <div className="space-y-2 mb-10">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white font-serif">
+                <div className="bg-white/8 backdrop-blur-md rounded-2xl p-6 sm:p-10 border border-white/15 shadow-xl">
+                  <div className="space-y-2 mb-8 sm:mb-10 text-center sm:text-left">
+                    <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.18em] text-white/50">
+                      Sessions
+                    </p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white font-serif">
                       Breakout Session Speakers
                     </h2>
                   </div>

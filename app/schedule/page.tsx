@@ -228,16 +228,7 @@ export default function Schedule() {
         {/* Main Content */}
         <div className="relative z-10 flex flex-col items-center justify-center w-full min-h-screen py-24 sm:py-28 px-4">
           <div className="max-w-6xl mx-auto">
-            {/* Logo */}
-            <div className="mx-auto mb-8 sm:mb-12 text-center">
-              <Image
-                src="/logo_white.png"
-                alt="Social Justice Institute"
-                width={150}
-                height={150}
-                className="object-contain mx-auto sm:w-[200px]"
-              />
-            </div>
+           
 
             {/* Heading */}
             <div className="mb-12 sm:mb-16 text-center">
