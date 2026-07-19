@@ -38,6 +38,7 @@ interface Session {
 
 export default function SpeakersClient() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
@@ -266,6 +267,22 @@ export default function SpeakersClient() {
     });
   };
 
+  useEffect(() => {
+    if (!editing) return;
+
+    const frame = requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      window.setTimeout(() => {
+        document.getElementById("name")?.focus();
+      }, 350);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [editing?.id]);
+
   const resetForm = () => {
     setEditing(null);
     setFormData({
@@ -298,7 +315,10 @@ export default function SpeakersClient() {
       description="Add speaker profiles and link them to sessions."
     >
         {/* Form */}
-        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <div
+          ref={formRef}
+          className="mb-6 scroll-mt-28 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6"
+        >
           <h2 className="mb-4 text-base font-semibold text-gray-900">
             {editing ? "Edit speaker" : "Add speaker"}
           </h2>
