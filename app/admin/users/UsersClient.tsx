@@ -659,16 +659,14 @@ export default function UsersClient() {
                         />
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {user.firstName} {user.lastName}
+                            {user.firstName} {user.lastName} 
                             {user.metadata.pronouns && (
                               <span className="text-gray-500 font-normal ml-1">
                                 ({user.metadata.pronouns})
                               </span>
                             )}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            ID: {user.id.slice(0, 12)}...
-                          </div>
+                         
                           {/* Additional Details */}
                           <div className="mt-2 text-xs text-gray-600 space-y-0.5">
                             {user.metadata.title && (
