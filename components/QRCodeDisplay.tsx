@@ -212,11 +212,6 @@ export default function QRCodeDisplay({
             Print QR Code
           </Button>
         </div>
-
-        <p className="text-xs text-gray-500 mt-4">
-          This QR code is unique to your registration and can be scanned at the
-          event
-        </p>
       </div>
     </div>
   );

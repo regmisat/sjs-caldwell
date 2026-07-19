@@ -203,9 +203,6 @@ function CheckInQrPreview({
           <DialogTitle className="font-serif text-xl text-gray-900">
             Event Check-In
           </DialogTitle>
-          <DialogDescription className="text-gray-600">
-            Present this QR code at the symposium entrance.
-          </DialogDescription>
         </DialogHeader>
         <QRCodeDisplay
           userId={userId}
@@ -685,7 +682,6 @@ export default function DashboardClient({
             <div className="mx-auto max-w-4xl">
               <SectionCard
                 title="Registered Sessions"
-                description="View your sessions or register for more without leaving the dashboard"
               >
                 <RegisteredSessions
                   firstName={formData.firstName}
