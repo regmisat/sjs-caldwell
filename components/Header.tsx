@@ -101,22 +101,19 @@ export default function Header({ showSchedule = true }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Desktop Auth Buttons - Right Side */}
-          <div className="hidden md:flex items-center gap-3 lg:gap-4">
+          {/* Desktop Auth - Right Side */}
+          <div className="hidden md:flex items-center gap-4 lg:gap-5">
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 lg:px-6 rounded-lg border border-white/20 transition-all duration-200 text-sm lg:text-base whitespace-nowrap">
+                <button className="text-sm lg:text-base font-medium tracking-wide text-white/70 hover:text-white transition-colors whitespace-nowrap">
                   Sign In
                 </button>
               </SignInButton>
             </SignedOut>
             <SignedIn>
-              <a
-                href="/dashboard"
-                className="bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 lg:px-6 rounded-lg border border-white/20 transition-all duration-200 text-sm lg:text-base whitespace-nowrap"
-              >
+              <Link href="/dashboard" className={linkClass("/dashboard")}>
                 Dashboard
-              </a>
+              </Link>
               <UserButton
                 afterSignOutUrl="/"
                 appearance={{
@@ -194,27 +191,28 @@ export default function Header({ showSchedule = true }: HeaderProps) {
             <SignedOut>
               <div className="pt-3 space-y-2">
                 <SignInButton mode="modal">
-                  <button className="w-full bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 rounded-lg border border-white/20 transition-all duration-200 text-sm">
+                  <button className="w-full text-left px-1 py-3 text-sm font-medium tracking-wide text-white/70 hover:text-white border-b border-white/10 transition-colors">
                     Sign In
                   </button>
                 </SignInButton>
-                <a
-                  href="mailto:sji@caldwell.edu"
-                  className="block w-full bg-white text-black hover:bg-white/90 font-semibold py-2 px-4 rounded-lg transition-all duration-200 text-sm text-center"
-                >
-                  Registration Closed
-                </a>
               </div>
             </SignedOut>
             <SignedIn>
-              <div className="pt-3 space-y-2">
-                <a
+              <div className="pt-1">
+                <Link
                   href="/dashboard"
-                  className="block w-full bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 rounded-lg border border-white/20 transition-all duration-200 text-sm text-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={[
+                    "block px-1 py-3 text-sm font-medium tracking-wide border-b border-white/10 transition-colors",
+                    pathname === "/dashboard" ||
+                    pathname.startsWith("/dashboard/")
+                      ? "text-white"
+                      : "text-white/70 hover:text-white",
+                  ].join(" ")}
                 >
                   Dashboard
-                </a>
-                <div className="flex justify-center pt-2">
+                </Link>
+                <div className="flex justify-center pt-4">
                   <UserButton
                     afterSignOutUrl="/"
                     appearance={{

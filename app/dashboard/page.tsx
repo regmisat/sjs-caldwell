@@ -266,6 +266,7 @@ export default async function DashboardPage({
       user={userData}
       paymentInfo={paymentInfo}
       donations={serializedDonations}
+      donationSuccess={params.donation === "success"}
     />
   );
 }
