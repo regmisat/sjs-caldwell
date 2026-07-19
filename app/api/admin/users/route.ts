@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { ADMIN_EMAILS } from "@/utils/CONSTANTS";
+import { createServiceClient } from "@/utils/supabase/server";
+
+const normalizeValue = (value: unknown): string | null =>
+  value === undefined || value === null || value === ""
+    ? null
+    : typeof value === "string"
+      ? value
+      : JSON.stringify(value);
 
 export async function GET(req: NextRequest) {
   try {
@@ -114,30 +122,75 @@ export async function PATCH(req: NextRequest) {
     }
 
     const client = await clerkClient();
+    const targetUser = await client.users.getUser(targetUserId);
+    const currentMetadata = (targetUser.unsafeMetadata as any) || {};
 
     // Update user details
     const updateData: any = {};
+    const changes: {
+      field: string;
+      old_value: string | null;
+      new_value: string | null;
+    }[] = [];
 
     if (firstName !== undefined) {
       updateData.firstName = firstName;
+      if (normalizeValue(targetUser.firstName) !== normalizeValue(firstName)) {
+        changes.push({
+          field: "firstName",
+          old_value: normalizeValue(targetUser.firstName),
+          new_value: normalizeValue(firstName),
+        });
+      }
     }
 
     if (lastName !== undefined) {
       updateData.lastName = lastName;
+      if (normalizeValue(targetUser.lastName) !== normalizeValue(lastName)) {
+        changes.push({
+          field: "lastName",
+          old_value: normalizeValue(targetUser.lastName),
+          new_value: normalizeValue(lastName),
+        });
+      }
     }
 
     // Update metadata if provided
     if (metadata) {
-      const targetUser = await client.users.getUser(targetUserId);
-      const currentMetadata = (targetUser.unsafeMetadata as any) || {};
-
       updateData.unsafeMetadata = {
         ...currentMetadata,
         ...metadata,
       };
+      for (const field of Object.keys(metadata)) {
+        const oldValue = normalizeValue(currentMetadata[field]);
+        const newValue = normalizeValue(metadata[field]);
+        if (oldValue !== newValue) {
+          changes.push({ field, old_value: oldValue, new_value: newValue });
+        }
+      }
     }
 
     const updatedUser = await client.users.updateUser(targetUserId, updateData);
+
+    // Record the edit in Supabase; failures here should not block the update
+    if (changes.length > 0) {
+      try {
+        const supabase = createServiceClient();
+        const { error: historyError } = await supabase
+          .from("user_edit_history")
+          .insert({
+            user_id: targetUserId,
+            edited_by: userId,
+            source: "admin_edit",
+            changes,
+          });
+        if (historyError) {
+          console.error("Failed to record edit history:", historyError);
+        }
+      } catch (historyError) {
+        console.error("Failed to record edit history:", historyError);
+      }
+    }
 
     return NextResponse.json({
       success: true,

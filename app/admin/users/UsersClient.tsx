@@ -53,6 +53,41 @@ interface UsersResponse {
   total: number;
 }
 
+interface EditHistoryEntry {
+  id: string;
+  user_id: string;
+  edited_by: string;
+  source: string;
+  changes: {
+    field: string;
+    old_value: string | null;
+    new_value: string | null;
+  }[];
+  created_at: string;
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  firstName: "First Name",
+  lastName: "Last Name",
+  pronouns: "Pronouns",
+  classification: "Classification",
+  title: "Title",
+  organization: "Organization",
+  phoneNumber: "Phone Number",
+  howDidYouHear: "How Did You Hear",
+  additionalInfo: "Additional Info",
+  paymentType: "Payment Type",
+  paymentAmount: "Payment Amount",
+  paymentSessionId: "Payment Session",
+  isCheckedIn: "Checked In",
+};
+
+const SOURCE_LABELS: Record<string, string> = {
+  edit_information: "Edit Information",
+  metadata_update: "Onboarding / Payment",
+  admin_edit: "Admin Edit",
+};
+
 export default function UsersClient() {
   const [data, setData] = useState<UsersResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,6 +108,13 @@ export default function UsersClient() {
   const [checkInUpdating, setCheckInUpdating] = useState<
     Record<string, boolean>
   >({});
+
+  // Edit history dialog state
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [historyUser, setHistoryUser] = useState<UserData | null>(null);
+  const [historyEntries, setHistoryEntries] = useState<EditHistoryEntry[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
 
   // Add user dialog state
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -174,6 +216,32 @@ export default function UsersClient() {
       alert(`Error: ${err.message}`);
     } finally {
       setEditLoading(false);
+    }
+  };
+
+  const openHistoryDialog = async (user: UserData) => {
+    setHistoryUser(user);
+    setHistoryDialogOpen(true);
+    setHistoryEntries([]);
+    setHistoryError(null);
+
+    try {
+      setHistoryLoading(true);
+      const response = await fetch(
+        `/api/admin/users/edit-history?userId=${encodeURIComponent(user.id)}`,
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch edit history");
+      }
+
+      const historyData = await response.json();
+      setHistoryEntries(historyData.history || []);
+    } catch (err: any) {
+      setHistoryError(err.message);
+    } finally {
+      setHistoryLoading(false);
     }
   };
 
@@ -689,6 +757,13 @@ export default function UsersClient() {
                           Edit
                         </Button>
                         <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openHistoryDialog(user)}
+                        >
+                          History
+                        </Button>
+                        <Button
                           variant="destructive"
                           size="sm"
                           onClick={() => openDeleteDialog(user)}
@@ -852,6 +927,111 @@ export default function UsersClient() {
             </Button>
             <Button onClick={handleSaveUser} disabled={editLoading}>
               {editLoading ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit History Dialog */}
+      <Dialog open={historyDialogOpen} onOpenChange={setHistoryDialogOpen}>
+        <DialogContent className="sm:max-w-[640px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit History</DialogTitle>
+            <DialogDescription>
+              {historyUser
+                ? `Changes made to ${historyUser.firstName || ""} ${
+                    historyUser.lastName || ""
+                  } (${historyUser.email})`
+                : "Changes made to this user's information"}
+            </DialogDescription>
+          </DialogHeader>
+
+          {historyLoading ? (
+            <div className="py-8 text-center text-gray-500">
+              Loading history...
+            </div>
+          ) : historyError ? (
+            <div className="py-8 text-center text-red-600">
+              Error: {historyError}
+            </div>
+          ) : historyEntries.length === 0 ? (
+            <div className="py-8 text-center text-gray-500">
+              No edits recorded for this user yet.
+            </div>
+          ) : (
+            <div className="space-y-4 py-2">
+              {historyEntries.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="border rounded-lg p-4 bg-gray-50"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <span
+                      className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                        entry.source === "admin_edit"
+                          ? "bg-amber-100 text-amber-800"
+                          : entry.source === "edit_information"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      {SOURCE_LABELS[entry.source] || entry.source}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(entry.created_at).toLocaleString()}
+                    </span>
+                  </div>
+
+                  {entry.source === "admin_edit" &&
+                    entry.edited_by !== entry.user_id && (
+                      <div className="text-xs text-gray-500 mb-2">
+                        Edited by admin: {entry.edited_by}
+                      </div>
+                    )}
+
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-500 uppercase">
+                        <th className="pb-1 pr-2 font-medium">Field</th>
+                        <th className="pb-1 pr-2 font-medium">Before</th>
+                        <th className="pb-1 font-medium">After</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entry.changes.map((change, idx) => (
+                        <tr key={idx} className="border-t border-gray-200">
+                          <td className="py-1.5 pr-2 font-medium text-gray-900">
+                            {FIELD_LABELS[change.field] || change.field}
+                          </td>
+                          <td className="py-1.5 pr-2 text-red-700 break-all">
+                            {change.old_value ?? (
+                              <span className="text-gray-400 italic">
+                                empty
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-1.5 text-green-700 break-all">
+                            {change.new_value ?? (
+                              <span className="text-gray-400 italic">
+                                empty
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setHistoryDialogOpen(false)}
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

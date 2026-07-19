@@ -1,5 +1,34 @@
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { createServiceClient } from "@/utils/supabase/server";
+
+interface FieldChange {
+  field: string;
+  old_value: string | null;
+  new_value: string | null;
+}
+
+const normalize = (value: unknown): string | null =>
+  value === undefined || value === null || value === ""
+    ? null
+    : typeof value === "string"
+      ? value
+      : JSON.stringify(value);
+
+function diffFields(
+  oldValues: Record<string, unknown>,
+  newValues: Record<string, unknown>
+): FieldChange[] {
+  const changes: FieldChange[] = [];
+  for (const field of Object.keys(newValues)) {
+    const oldValue = normalize(oldValues[field]);
+    const newValue = normalize(newValues[field]);
+    if (oldValue !== newValue) {
+      changes.push({ field, old_value: oldValue, new_value: newValue });
+    }
+  }
+  return changes;
+}
 
 export async function POST(req: Request) {
   try {
@@ -35,6 +64,7 @@ export async function POST(req: Request) {
 
     // Prepare updated metadata
     let updatedMetadata = { ...existingMetadata };
+    let changes: FieldChange[] = [];
 
     // If direct unsafeMetadata is provided (from success page), merge it
     if (unsafeMetadata) {
@@ -42,6 +72,7 @@ export async function POST(req: Request) {
         ...existingMetadata,
         ...unsafeMetadata,
       };
+      changes = diffFields(existingMetadata || {}, unsafeMetadata);
     } else {
       // Otherwise, update from form fields
       updatedMetadata = {
@@ -54,6 +85,24 @@ export async function POST(req: Request) {
         howDidYouHear,
         additionalInfo,
       };
+      changes = diffFields(
+        {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          ...existingMetadata,
+        },
+        {
+          firstName: firstName || user.firstName,
+          lastName: lastName || user.lastName,
+          pronouns,
+          classification,
+          title,
+          organization,
+          phoneNumber,
+          howDidYouHear,
+          additionalInfo,
+        }
+      );
     }
 
     // Update user with Clerk's backend API
@@ -63,6 +112,26 @@ export async function POST(req: Request) {
       lastName: lastName || user.lastName || undefined,
       unsafeMetadata: updatedMetadata,
     });
+
+    // Record the edit in Supabase; failures here should not block the update
+    if (changes.length > 0) {
+      try {
+        const supabase = createServiceClient();
+        const { error: historyError } = await supabase
+          .from("user_edit_history")
+          .insert({
+            user_id: userId,
+            edited_by: userId,
+            source: unsafeMetadata ? "metadata_update" : "edit_information",
+            changes,
+          });
+        if (historyError) {
+          console.error("Failed to record edit history:", historyError);
+        }
+      } catch (historyError) {
+        console.error("Failed to record edit history:", historyError);
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
