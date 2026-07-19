@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import { Button } from "@/components/ui/button";
@@ -16,7 +14,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import AdminNav from "@/components/AdminNav";
+import AdminShell from "@/components/AdminShell";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -44,7 +42,6 @@ interface Speaker {
 }
 
 export default function SessionsClient() {
-  const router = useRouter();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [loading, setLoading] = useState(true);
@@ -241,113 +238,130 @@ export default function SessionsClient() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 border-t-red-600 rounded-full animate-spin"></div>
+      <AdminShell title="Sessions" description="Loading sessions...">
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-gray-900" />
+          <p className="mt-4 text-sm text-gray-600">Loading sessions...</p>
         </div>
-        <div className="mt-4 text-lg text-gray-600">Loading Sessions...</div>
-      </div>
+      </AdminShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header showSchedule={false} />
+    <AdminShell
+      title="Sessions"
+      description="Create and manage symposium sessions."
+      actions={
+        <Button onClick={openCreateDialog} size="sm">
+          Create session
+        </Button>
+      }
+    >
+      <div className="space-y-3">
+        {sessions.length === 0 && (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
+            <p className="text-sm font-medium text-gray-900">No sessions yet</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Create a session to get started.
+            </p>
+            <Button onClick={openCreateDialog} size="sm" className="mt-4">
+              Create session
+            </Button>
+          </div>
+        )}
 
-      <div className="max-w-7xl mx-auto px-4 py-8 mt-20">
-        <AdminNav />
-        
-        <div className="mb-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Manage Sessions</h1>
-          <Button onClick={openCreateDialog}>Create Session</Button>
-        </div>
-
-        <div className="space-y-4">
-          {sessions.map((session) => (
-            <div key={session.id} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        {sessions.map((session) => (
+          <div
+            key={session.id}
+            className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     {session.title}
-                    <Badge
-                      variant={
-                        session.is_published ? "secondary" : "destructive"
-                      }
-                      className="ml-3"
-                    >
-                      {session.is_published ? "Published" : "Unpublished"}
-                    </Badge>
                   </h3>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p>
-                      <span className="font-medium">Time:</span>{" "}
-                      {formatTime(session.start_time)} -{" "}
-                      {formatTime(session.end_time)}
-                    </p>
-                    {session.location && (
-                      <p>
-                        <span className="font-medium">Location:</span>{" "}
-                        {session.location}
-                      </p>
-                    )}
-                    <p>
-                      <span className="font-medium">Attendees:</span>{" "}
-                      {session.registration_count} / {session.max_attendees}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2 items-start">
+                  <Badge
+                    variant={
+                      session.is_published ? "secondary" : "destructive"
+                    }
+                  >
+                    {session.is_published ? "Published" : "Unpublished"}
+                  </Badge>
                   {session.is_general && (
-                    <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">
+                    <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
                       General
                     </span>
                   )}
-                  <Button
-                    onClick={() => openEditDialog(session)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => handleDelete(session.id)}
-                    size="sm"
-                    variant="destructive"
-                  >
-                    Delete
-                  </Button>
+                </div>
+                <div className="space-y-1 text-sm text-gray-600">
+                  <p>
+                    <span className="font-medium text-gray-700">Time:</span>{" "}
+                    {formatTime(session.start_time)} –{" "}
+                    {formatTime(session.end_time)}
+                  </p>
+                  {session.location && (
+                    <p>
+                      <span className="font-medium text-gray-700">
+                        Location:
+                      </span>{" "}
+                      {session.location}
+                    </p>
+                  )}
+                  <p>
+                    <span className="font-medium text-gray-700">
+                      Attendees:
+                    </span>{" "}
+                    {session.registration_count} / {session.max_attendees}
+                  </p>
                 </div>
               </div>
-
-              {session.description && (
-                <div
-                  className="prose prose-sm max-w-none mb-4 text-gray-700"
-                  dangerouslySetInnerHTML={{
-                    __html: session.description.replaceAll("&nbsp;", " "),
-                  }}
-                />
-              )}
-
-              {session.speakers.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    Speakers:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {session.speakers.map((speaker) => (
-                      <span
-                        key={speaker.id}
-                        className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
-                      >
-                        {speaker.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  onClick={() => openEditDialog(session)}
+                  size="sm"
+                  variant="outline"
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => handleDelete(session.id)}
+                  size="sm"
+                  variant="destructive"
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
-          ))}
-        </div>
+
+            {session.description && (
+              <div
+                className="prose prose-sm mt-4 max-w-none text-gray-700"
+                dangerouslySetInnerHTML={{
+                  __html: session.description.replaceAll("&nbsp;", " "),
+                }}
+              />
+            )}
+
+            {session.speakers.length > 0 && (
+              <div className="mt-4 border-t border-gray-100 pt-4">
+                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                  Speakers
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {session.speakers.map((speaker) => (
+                    <span
+                      key={speaker.id}
+                      className="rounded-md bg-gray-100 px-2.5 py-1 text-sm text-gray-800"
+                    >
+                      {speaker.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* Edit Dialog */}
@@ -651,6 +665,6 @@ export default function SessionsClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminShell>
   );
 }

@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import AdminNav from "@/components/AdminNav";
+import AdminShell from "@/components/AdminShell";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
 interface UserData {
   id: string;
@@ -467,184 +468,180 @@ export default function UsersClient() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 border-t-red-600 rounded-full animate-spin"></div>
+      <AdminShell title="Users" description="Loading users...">
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-gray-900" />
+          <p className="mt-4 text-sm text-gray-600">Loading users...</p>
         </div>
-        <div className="mt-4 text-lg text-gray-600">Loading users...</div>
-      </div>
+      </AdminShell>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-red-600 text-lg">Error: {error}</div>
-      </div>
+      <AdminShell title="Users" description="Unable to load users.">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      </AdminShell>
     );
   }
 
+  const paidCount =
+    data?.users.filter((u) => u.metadata.paymentType === "paid").length || 0;
+  const exemptCount =
+    data?.users.filter((u) => u.metadata.paymentType === "exempt").length || 0;
+  const unknownCount =
+    data?.users.filter(
+      (u) =>
+        u.metadata.paymentType !== "paid" &&
+        u.metadata.paymentType !== "exempt",
+    ).length || 0;
+  const totalPaidAmount =
+    data?.users
+      .filter((u) => u.metadata.paymentType === "paid")
+      .reduce((sum, u) => sum + (u.metadata.paymentAmount || 0), 0)
+      .toFixed(2) || "0.00";
+
   return (
-    <>
-      <div className="max-w-7xl mx-auto px-4 py-8 mt-20">
-        <AdminNav />
-
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            User Management
-          </h1>
-          <p className="text-gray-600">
-            View and manage user details and payment status
-          </p>
-        </div>
-
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Total Users
-            </h3>
-            <p className="text-3xl font-bold text-gray-900">
-              {data?.total || 0}
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Total Paid Users
-            </h3>
-            <p className="text-3xl font-bold text-green-600">
-              {data?.users.filter((u) => u.metadata.paymentType === "paid")
-                .length || 0}
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Total Amount Paid
-            </h3>
-            <p className="text-3xl font-bold text-green-600">
-              $
-              {data?.users
-                .filter((u) => u.metadata.paymentType === "paid")
-                .reduce((sum, u) => sum + (u.metadata.paymentAmount || 0), 0)
-                .toFixed(2) || "0.00"}
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Total Exempt Users
-            </h3>
-            <p className="text-3xl font-bold text-">
-              {data?.users.filter((u) => u.metadata.paymentType === "exempt")
-                .length || 0}
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Total Unknown Users
-            </h3>
-            <p className="text-3xl font-bold text-orange-600">
-              {data?.users.filter(
-                (u) =>
-                  u.metadata.paymentType !== "paid" &&
-                  u.metadata.paymentType !== "exempt",
-              ).length || 0}
-            </p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+    <AdminShell
+      title="Users"
+      description="Search registrants, update payment status, and manage check-in."
+      actions={
+        <>
           <Button
             onClick={() => setAddDialogOpen(true)}
-            className="w-full sm:w-auto bg-gray-700 hover:bg-gray-800 text-white font-semibold py-6 px-8 text-lg shadow-lg hover:shadow-xl transition-all"
-            size="lg"
+            size="sm"
+            variant="default"
           >
-            + Add New User
+            Add user
           </Button>
           <Button
             onClick={handleDownloadExcel}
-            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-6 px-8 text-lg shadow-lg hover:shadow-xl transition-all"
-            size="lg"
+            size="sm"
+            variant="outline"
             disabled={!filteredUsers || filteredUsers.length === 0}
           >
-            Download Excel
+            Export Excel
           </Button>
+        </>
+      }
+    >
+      {/* Summary Stats */}
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Total users
+          </p>
+          <p className="mt-1 text-2xl font-semibold text-gray-900">
+            {data?.total || 0}
+          </p>
         </div>
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search Users
-              </label>
-              <Input
-                type="text"
-                placeholder="Search by name, email, or ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Paid
+          </p>
+          <p className="mt-1 text-2xl font-semibold text-gray-900">{paidCount}</p>
+        </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Amount paid
+          </p>
+          <p className="mt-1 text-2xl font-semibold text-gray-900">
+            ${totalPaidAmount}
+          </p>
+        </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Exempt
+          </p>
+          <p className="mt-1 text-2xl font-semibold text-gray-900">
+            {exemptCount}
+          </p>
+        </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm col-span-2 lg:col-span-1">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Unknown
+          </p>
+          <p className="mt-1 text-2xl font-semibold text-gray-900">
+            {unknownCount}
+          </p>
+        </div>
+      </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Payment Status
-              </label>
-              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Users</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="unpaid">Unpaid</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Filters */}
+      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              Search
+            </label>
+            <Input
+              type="text"
+              placeholder="Name, email, or ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              Payment status
+            </label>
+            <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All users</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="unpaid">Unpaid</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-[1300px] mx-auto mb-20">
+      <div className="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700 transition-colors"
+                  className="cursor-pointer select-none px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 transition-colors hover:text-gray-700 sm:px-6"
                   onClick={() =>
                     setNameSortOrder((prev) =>
                       prev === null ? "asc" : prev === "asc" ? "desc" : null,
                     )
                   }
                 >
-                  User{" "}
-                  {nameSortOrder === "asc"
-                    ? "↑"
-                    : nameSortOrder === "desc"
-                      ? "↓"
-                      : "↕"}
+                  <span className="inline-flex items-center gap-1.5">
+                    User
+                    {nameSortOrder === "asc" ? (
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    ) : nameSortOrder === "desc" ? (
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    ) : (
+                      <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
+                    )}
+                  </span>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Classification
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Payment Type
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
+                  Payment
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Joined
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Is Checked In?
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
+                  Checked in
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Actions
                 </th>
               </tr>
@@ -1256,6 +1253,6 @@ export default function UsersClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </AdminShell>
   );
 }

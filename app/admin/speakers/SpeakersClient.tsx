@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
@@ -16,7 +14,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import AdminNav from "@/components/AdminNav";
+import AdminShell from "@/components/AdminShell";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -39,7 +37,6 @@ interface Session {
 }
 
 export default function SpeakersClient() {
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -286,30 +283,24 @@ export default function SpeakersClient() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 border-t-red-600 rounded-full animate-spin"></div>
+      <AdminShell title="Speakers" description="Loading speakers...">
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-200 border-t-gray-900" />
+          <p className="mt-4 text-sm text-gray-600">Loading speakers...</p>
         </div>
-        <div className="mt-4 text-lg text-gray-600">Loading Speakers...</div>
-      </div>
+      </AdminShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header showSchedule={false} />
-
-      <div className="max-w-7xl mx-auto px-4 py-8 mt-20">
-        <AdminNav />
-        
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Manage Speakers</h1>
-        </div>
-
+    <AdminShell
+      title="Speakers"
+      description="Add speaker profiles and link them to sessions."
+    >
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">
-            {editing ? "Edit Speaker" : "Add New Speaker"}
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+          <h2 className="mb-4 text-base font-semibold text-gray-900">
+            {editing ? "Edit speaker" : "Add speaker"}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -424,26 +415,32 @@ export default function SpeakersClient() {
         </div>
 
         {/* Speakers List */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="border-b border-gray-200 px-5 py-3">
+            <h2 className="text-sm font-semibold text-gray-900">
+              All speakers ({sortedSpeakers.length})
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Photo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Title
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Type
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Sessions
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-6">
                   Actions
                 </th>
               </tr>
@@ -525,8 +522,8 @@ export default function SpeakersClient() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
-      </div>
 
       {/* Session Linking Dialog */}
       <Dialog open={isSessionDialogOpen} onOpenChange={setIsSessionDialogOpen}>
@@ -604,6 +601,6 @@ export default function SpeakersClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminShell>
   );
 }

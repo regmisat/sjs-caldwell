@@ -2,47 +2,72 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Calendar,
+  Mic2,
+  Users,
+  CreditCard,
+  type LucideIcon,
+} from "lucide-react";
 
-const adminPages = [
+const adminPages: {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+  match?: (pathname: string) => boolean;
+}[] = [
   {
-    title: "Manage Sessions",
+    title: "Overview",
+    href: "/admin",
+    icon: LayoutDashboard,
+    match: (pathname) => pathname === "/admin",
+  },
+  {
+    title: "Sessions",
     href: "/admin/sessions",
-    icon: "📅",
+    icon: Calendar,
   },
   {
-    title: "Manage Speakers",
+    title: "Speakers",
     href: "/admin/speakers",
-    icon: "🎤",
+    icon: Mic2,
   },
   {
-    title: "Manage Users",
+    title: "Users",
     href: "/admin/users",
-    icon: "👥",
-  },
+    icon: Users,
+  }
 ];
 
 export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-      {adminPages.map((page) => {
-        const isActive = pathname === page.href;
-        return (
-          <Link key={page.href} href={page.href}>
-            <div
-              className={`flex items-center justify-center gap-3 p-6 rounded-xl border-2 transition-all cursor-pointer ${
+    <nav className="mb-8 border-b border-gray-200">
+      <div className="-mb-px flex gap-1 overflow-x-auto">
+        {adminPages.map((page) => {
+          const isActive = page.match
+            ? page.match(pathname)
+            : pathname === page.href || pathname.startsWith(`${page.href}/`);
+          const Icon = page.icon;
+
+          return (
+            <Link
+              key={page.href}
+              href={page.href}
+              className={`inline-flex items-center gap-2 whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-gray-900 border-gray-900 text-white shadow-lg"
-                  : "bg-white border-gray-200 text-gray-800 hover:border-gray-400 hover:shadow-md"
+                  ? "border-gray-900 text-gray-900"
+                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800"
               }`}
             >
-              <span className="text-3xl">{page.icon}</span>
-              <span className="text-lg font-semibold">{page.title}</span>
-            </div>
-          </Link>
-        );
-      })}
-    </div>
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {page.title}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
