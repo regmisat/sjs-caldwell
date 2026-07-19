@@ -586,17 +586,7 @@ export default function DashboardClient({
             <div className="mx-auto max-w-4xl">
               <SectionCard
                 title="Registered Sessions"
-                description="Sessions you have signed up for"
-                action={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push("/schedule")}
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                  >
-                    Browse Schedule
-                  </Button>
-                }
+                description="View your sessions or register for more without leaving the dashboard"
               >
                 <RegisteredSessions
                   firstName={formData.firstName}
