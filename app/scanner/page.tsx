@@ -28,7 +28,115 @@ export default function QRScannerPage() {
   const [isScanning, setIsScanning] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReaderRef = useRef<BrowserQRCodeReader | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const hasScannedRef = useRef(false);
+
+  const getCameraAccess = async (): Promise<MediaStream> => {
+    if (!window.isSecureContext) {
+      console.error(
+        "Camera unavailable: page is not in a secure context (HTTPS required)",
+        {
+          protocol: window.location.protocol,
+          host: window.location.host,
+        }
+      );
+      throw new Error("INSECURE_CONTEXT");
+    }
+
+    type LegacyGetUserMedia = (
+      constraints: MediaStreamConstraints,
+      success: (stream: MediaStream) => void,
+      error: (err: Error) => void
+    ) => void;
+
+    const nav = navigator as Navigator & {
+      webkitGetUserMedia?: LegacyGetUserMedia;
+      mozGetUserMedia?: LegacyGetUserMedia;
+    };
+
+    const requestStream = async (
+      constraints: MediaStreamConstraints
+    ): Promise<MediaStream> => {
+      if (navigator.mediaDevices?.getUserMedia) {
+        return navigator.mediaDevices.getUserMedia(constraints);
+      }
+
+      const legacyGetUserMedia =
+        nav.webkitGetUserMedia || nav.mozGetUserMedia;
+
+      if (typeof legacyGetUserMedia === "function") {
+        return new Promise((resolve, reject) => {
+          legacyGetUserMedia.call(navigator, constraints, resolve, reject);
+        });
+      }
+
+      console.error("Camera API unavailable", {
+        hasNavigator: typeof navigator !== "undefined",
+        hasMediaDevices: !!navigator.mediaDevices,
+        isSecureContext: window.isSecureContext,
+        userAgent: navigator.userAgent,
+      });
+      throw new Error("CAMERA_UNSUPPORTED");
+    };
+
+    try {
+      // Prefer rear camera on phones; "ideal" avoids hard failures when unavailable
+      return await requestStream({
+        audio: false,
+        video: { facingMode: { ideal: "environment" } },
+      });
+    } catch (err) {
+      const shouldRethrow =
+        err instanceof Error &&
+        (err.message === "CAMERA_UNSUPPORTED" ||
+          err.message === "INSECURE_CONTEXT" ||
+          err.name === "NotAllowedError" ||
+          err.name === "PermissionDeniedError" ||
+          err.name === "NotFoundError" ||
+          err.name === "DevicesNotFoundError");
+
+      if (shouldRethrow) {
+        throw err;
+      }
+
+      console.warn(
+        "Rear-camera constraints failed, retrying with default camera",
+        err
+      );
+      return requestStream({ audio: false, video: true });
+    }
+  };
+
+  const waitForVideoElement = (): Promise<HTMLVideoElement> =>
+    new Promise((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 40;
+
+      const check = () => {
+        if (videoRef.current) {
+          resolve(videoRef.current);
+          return;
+        }
+        attempts += 1;
+        if (attempts >= maxAttempts) {
+          reject(new Error("VIDEO_ELEMENT_UNAVAILABLE"));
+          return;
+        }
+        requestAnimationFrame(check);
+      };
+
+      check();
+    });
+
+  const stopCameraStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
 
   const verifyQRCode = async (qrData: string) => {
     // Prevent duplicate scans
@@ -77,62 +185,81 @@ export default function QRScannerPage() {
   const startScanning = async () => {
     try {
       setError(null);
-      setIsScanning(true);
       hasScannedRef.current = false;
 
-      // Request camera permission explicitly
       console.log("Requesting camera permission...");
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }, // Use back camera on mobile devices
-      });
-
-      // Permission granted, now initialize the QR code reader
+      const stream = await getCameraAccess();
+      streamRef.current = stream;
       console.log("Camera permission granted");
+
+      // Mount the video element, then wait until the ref is ready
+      setIsScanning(true);
+      const videoElement = await waitForVideoElement();
 
       if (!codeReaderRef.current) {
         codeReaderRef.current = new BrowserQRCodeReader();
       }
 
-      if (videoRef.current) {
-        const controls = await codeReaderRef.current.decodeFromVideoDevice(
-          null,
-          videoRef.current,
-          (result, error) => {
-            if (result && !hasScannedRef.current) {
-              const qrData = result.getText();
-              console.log("QR Code detected:", qrData);
-              verifyQRCode(qrData);
-            }
+      await codeReaderRef.current.decodeFromStream(
+        stream,
+        videoElement,
+        (result) => {
+          if (result && !hasScannedRef.current) {
+            const qrData = result.getText();
+            console.log("QR Code detected:", qrData);
+            verifyQRCode(qrData);
           }
-        );
-      }
+        }
+      );
     } catch (err) {
       console.error("Scanner error:", err);
 
-      // Provide more specific error messages
-      let errorMessage = "Failed to access camera.";
+      let errorMessage = "We couldn't open the camera. Please try again.";
+
       if (err instanceof Error) {
-        if (
+        if (err.message === "INSECURE_CONTEXT") {
+          errorMessage =
+            "Camera access requires a secure connection. Please open this page using HTTPS, then try again.";
+        } else if (err.message === "CAMERA_UNSUPPORTED") {
+          errorMessage =
+            "This browser doesn't support camera access. Please try Safari or Chrome on your phone.";
+        } else if (err.message === "VIDEO_ELEMENT_UNAVAILABLE") {
+          errorMessage =
+            "We couldn't start the camera preview. Please refresh the page and try again.";
+        } else if (
           err.name === "NotAllowedError" ||
           err.name === "PermissionDeniedError"
         ) {
           errorMessage =
-            "Camera permission denied. Please allow camera access in your browser settings and try again.";
+            "Camera access was blocked. Please allow camera permission in your browser settings, then try again.";
         } else if (
           err.name === "NotFoundError" ||
           err.name === "DevicesNotFoundError"
         ) {
-          errorMessage = "No camera found on this device.";
+          errorMessage =
+            "No camera was found on this device. Please try a different device.";
         } else if (
           err.name === "NotReadableError" ||
           err.name === "TrackStartError"
         ) {
-          errorMessage = "Camera is already in use by another application.";
+          errorMessage =
+            "The camera is currently in use by another app. Close that app and try again.";
+        } else if (
+          err.name === "OverconstrainedError" ||
+          err.name === "ConstraintNotSatisfiedError"
+        ) {
+          errorMessage =
+            "We couldn't start the rear camera. Please try again, or use a different device.";
         } else {
-          errorMessage = `Camera error: ${err.message}`;
+          console.error("Unhandled camera error details:", {
+            name: err.name,
+            message: err.message,
+            stack: err.stack,
+          });
         }
       }
 
+      stopCameraStream();
       setError(errorMessage);
       setIsScanning(false);
     }
@@ -142,6 +269,7 @@ export default function QRScannerPage() {
     if (codeReaderRef.current) {
       codeReaderRef.current.reset();
     }
+    stopCameraStream();
     setIsScanning(false);
   };
 
@@ -150,6 +278,7 @@ export default function QRScannerPage() {
       if (codeReaderRef.current) {
         codeReaderRef.current.reset();
       }
+      stopCameraStream();
     };
   }, []);
 
@@ -235,6 +364,7 @@ export default function QRScannerPage() {
                         ref={videoRef}
                         autoPlay
                         playsInline
+                        muted
                         className="w-full h-auto"
                         style={{ maxHeight: "500px" }}
                       />
@@ -291,7 +421,9 @@ export default function QRScannerPage() {
                 </svg>
                 <div>
                   <h3 className="text-lg font-semibold text-red-900">
-                    Verification Failed
+                    {scannedUser === null && !isLoading
+                      ? "Something went wrong"
+                      : "Verification Failed"}
                   </h3>
                   <p className="text-red-700 mt-1">{error}</p>
                 </div>
