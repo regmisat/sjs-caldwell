@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import QRCode from "qrcode";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +14,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -120,6 +129,91 @@ function InfoField({ label, value }: { label: string; value: string }) {
         {value}
       </p>
     </div>
+  );
+}
+
+function CheckInQrPreview({
+  userId,
+  userName,
+  userEmail,
+}: {
+  userId: string;
+  userName: string;
+  userEmail: string;
+}) {
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const qrPayload = useMemo(
+    () =>
+      JSON.stringify({
+        id: userId,
+        name: userName,
+        email: userEmail,
+        event: "Social Justice Institute 2026",
+      }),
+    [userId, userName, userEmail],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    QRCode.toDataURL(qrPayload, {
+      width: 128,
+      margin: 1,
+      color: { dark: "#111827", light: "#FFFFFF" },
+    })
+      .then((url) => {
+        if (!cancelled) setPreviewUrl(url);
+      })
+      .catch((error) => {
+        console.error("Error generating QR preview:", error);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [qrPayload]);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="group flex shrink-0 flex-col items-center"
+          aria-label="Open check-in QR code"
+        >
+          <div className="h-16 w-16 sm:h-[72px] sm:w-[72px] overflow-hidden rounded-md bg-white">
+            {previewUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={previewUrl}
+                alt="Check-in QR code"
+                className="h-full w-full object-contain"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-400">
+                QR
+              </div>
+            )}
+          </div>
+        
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md sm:max-w-lg bg-white border-gray-200 p-4 sm:p-6">
+        <DialogHeader>
+          <DialogTitle className="font-serif text-xl text-gray-900">
+            Event Check-In
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
+            Present this QR code at the symposium entrance.
+          </DialogDescription>
+        </DialogHeader>
+        <QRCodeDisplay
+          userId={userId}
+          userName={userName}
+          userEmail={userEmail}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -306,8 +400,8 @@ export default function DashboardClient({
 
           {/* Welcome header */}
           <div className="mb-6 sm:mb-8 rounded-2xl border border-white/15 bg-black/35 p-5 sm:p-7 backdrop-blur-sm text-white">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 flex-1">
                 <p className="text-sm uppercase tracking-[0.16em] text-white/60">
                   Your account
                 </p>
@@ -317,21 +411,26 @@ export default function DashboardClient({
                 <p className="mt-2 text-sm sm:text-base text-white/75 break-all">
                   {user.primaryEmailAddress}
                 </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-xs sm:text-sm font-medium text-emerald-100">
+                    Registered
+                  </span>
+                  <span
+                    className={`inline-flex items-center rounded-full border px-3 py-1 text-xs sm:text-sm font-medium ${
+                      isPaid || isExempt
+                        ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100"
+                        : "border-amber-400/40 bg-amber-500/15 text-amber-100"
+                    }`}
+                  >
+                    {paymentLabel}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-xs sm:text-sm font-medium text-emerald-100">
-                  Registered
-                </span>
-                <span
-                  className={`inline-flex items-center rounded-full border px-3 py-1 text-xs sm:text-sm font-medium ${
-                    isPaid || isExempt
-                      ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100"
-                      : "border-amber-400/40 bg-amber-500/15 text-amber-100"
-                  }`}
-                >
-                  {paymentLabel}
-                </span>
-              </div>
+              <CheckInQrPreview
+                userId={user.id}
+                userName={`${formData.firstName} ${formData.lastName}`.trim()}
+                userEmail={user.primaryEmailAddress || ""}
+              />
             </div>
           </div>
 
