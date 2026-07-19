@@ -1,8 +1,22 @@
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import { ADMIN_EMAILS } from "@/utils/CONSTANTS";
 import { createServiceClient } from "@/utils/supabase/server";
+
+function getClerkErrorMessage(error: unknown, fallback: string): string {
+  const clerkErrors = (error as { errors?: Array<Record<string, string>> })
+    ?.errors;
+  if (Array.isArray(clerkErrors) && clerkErrors.length > 0) {
+    const message = clerkErrors
+      .map((e) => e.longMessage || e.message || e.shortMessage)
+      .filter(Boolean)
+      .join("; ");
+    if (message) return message;
+  }
+  return (error as { message?: string })?.message || fallback;
+}
 
 const normalizeValue = (value: unknown): string | null =>
   value === undefined || value === null || value === ""
@@ -315,7 +329,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const passwordToUse = normalizedPassword || "notprovided@123";
+    // Avoid a shared/weak default — Clerk rejects breached passwords with 422
+    const usedGeneratedPassword = !normalizedPassword;
+    const passwordToUse =
+      normalizedPassword || `Np!${randomBytes(16).toString("base64url")}`;
 
     const client = await clerkClient();
 
@@ -325,6 +342,8 @@ export async function POST(req: NextRequest) {
       firstName: firstName || undefined,
       lastName: lastName || undefined,
       password: passwordToUse,
+      // Admin-created placeholder passwords should not be blocked by breach checks
+      skipPasswordChecks: usedGeneratedPassword,
       unsafeMetadata: {
         classification: classification || null,
         paymentType: paymentType || "unknown",
@@ -348,9 +367,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error creating user:", error);
+    const status =
+      typeof error?.status === "number" && error.status >= 400 && error.status < 600
+        ? error.status
+        : 500;
     return NextResponse.json(
-      { error: error.message || "Failed to create user" },
-      { status: 500 }
+      { error: getClerkErrorMessage(error, "Failed to create user") },
+      { status }
     );
   }
 }
