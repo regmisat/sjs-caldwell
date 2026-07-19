@@ -161,10 +161,7 @@ export default function Schedule() {
           {/* Loading Content */}
           <div className="relative z-10 flex flex-col items-center justify-center w-full min-h-screen py-24 sm:py-28 px-4">
             <div className="max-w-6xl mx-auto w-full">
-              {/* Logo Skeleton */}
-              <div className="mx-auto mb-8 sm:mb-12 text-center">
-                <Skeleton className="h-[150px] w-[150px] sm:h-[200px] sm:w-[200px] rounded-lg mx-auto bg-white/20" />
-              </div>
+             
 
               {/* Heading Skeleton */}
               <div className="mb-12 sm:mb-16 text-center">

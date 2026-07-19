@@ -63,13 +63,7 @@ export default function CommunityPartners() {
         <div className="relative z-10 w-full min-h-screen pt-28 sm:pt-32 pb-16 px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10 sm:mb-12">
-              <Image
-                src="/logo_white.png"
-                alt="Social Justice Institute"
-                width={140}
-                height={140}
-                className="object-contain mx-auto mb-6"
-              />
+            
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight leading-tight mb-4 font-serif">
                 Community Partners
               </h1>

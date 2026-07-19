@@ -123,10 +123,7 @@ export default function Speakers() {
           {/* Loading Content */}
           <div className="relative z-10 flex flex-col items-center justify-center w-full min-h-screen py-24 sm:py-28 px-4">
             <div className="max-w-5xl mx-auto text-center w-full">
-              {/* Logo Skeleton */}
-              <div className="mx-auto mb-8 sm:mb-12">
-                <Skeleton className="h-[150px] w-[150px] sm:h-[200px] sm:w-[200px] rounded-lg mx-auto bg-white/20" />
-              </div>
+            
 
               {/* Heading Skeleton */}
               <div className="mb-12 sm:mb-16">
@@ -219,16 +216,7 @@ export default function Speakers() {
         {/* Main Content */}
         <div className="relative z-10 flex flex-col items-center justify-center w-full min-h-screen py-24 sm:py-28 px-4">
           <div className="max-w-5xl mx-auto text-center w-full">
-            {/* Logo */}
-            <div className="mx-auto mb-8 sm:mb-12">
-              <Image
-                src="/logo_white.png"
-                alt="Social Justice Institute"
-                width={150}
-                height={150}
-                className="object-contain mx-auto sm:w-[200px]"
-              />
-            </div>
+            
 
             {/* Heading */}
             <div className="mb-12 sm:mb-16">
