@@ -9,7 +9,12 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { SignInButton, SignedOut, SignedIn } from "@clerk/nextjs";
 import Footer from "@/components/Footer";
 import Lightbox from "yet-another-react-lightbox";
+import Counter from "yet-another-react-lightbox/plugins/counter";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import "yet-another-react-lightbox/styles.css";
+import "yet-another-react-lightbox/plugins/counter.css";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
+import { ArrowRight, Images, Maximize2 } from "lucide-react";
 
 // Array of background images
 const backgroundImages = [
@@ -22,6 +27,20 @@ const backgroundImages = [
   "/event-pics/IMG_9110.jpg",
   "/event-pics/IMG_9032.jpg",
   "/event-pics/IMG_8977.jpg",
+];
+
+// Bento layout for the highlights gallery (6-col grid on lg):
+// a 2x2 feature top-left, a row of three, then a 2x2 feature bottom-right.
+const galleryLayout = [
+  "col-span-2 lg:col-span-4 lg:row-span-2",
+  "lg:col-span-2",
+  "lg:col-span-2",
+  "lg:col-span-2",
+  "lg:col-span-2",
+  "lg:col-span-2",
+  "lg:col-span-2",
+  "lg:col-span-2",
+  "lg:col-span-4 lg:row-span-2 lg:col-start-3 lg:row-start-4",
 ];
 
 const EVENT_START_TIME = new Date("2026-02-27T09:00:00-05:00").getTime();
@@ -45,7 +64,10 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  const slides = backgroundImages.map((src) => ({ src }));
+  const slides = backgroundImages.map((src, index) => ({
+    src,
+    alt: `Social Justice Symposium highlight ${index + 1}`,
+  }));
 
   return (
     <div className="dark relative max-w-screen min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800">
@@ -310,56 +332,91 @@ export default function Home() {
       </div>
 
       {/* Past Event Pictures Section */}
-      <div className="relative z-10 max-w-6xl mx-auto mt-20 px-4 pb-12">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 font-serif">
-            Past Event Highlights
-          </h2>
-          <div className="w-16 sm:w-24 h-1 bg-white mx-auto"></div>
-          <p className="text-white/80 mt-4 text-sm sm:text-base">
-            Memories from our previous Social Justice Symposiums
-          </p>
+      <section
+        aria-labelledby="highlights-heading"
+        className="relative z-10 max-w-6xl mx-auto mt-24 px-4 pb-16"
+      >
+        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="flex items-center gap-3 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
+              <span className="h-px w-8 bg-white/50" />
+              From the Archive
+            </p>
+            <h2
+              id="highlights-heading"
+              className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold text-white font-serif"
+            >
+              Past Event Highlights
+            </h2>
+            <p className="mt-3 max-w-md text-white/70 text-sm sm:text-base">
+              Memories from our previous Social Justice Symposiums
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setLightboxIndex(0);
+              setLightboxOpen(true);
+            }}
+            className="group inline-flex items-center gap-2 self-start sm:self-auto shrink-0 rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-colors duration-300 hover:bg-white hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+          >
+            <Images className="h-4 w-4" />
+            View all {backgroundImages.length} photos
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 place-items-center max-w-5xl">
-          {backgroundImages.map((imageSrc, index) => (
-            <div
-              key={index}
-              onClick={() => {
-                setLightboxIndex(index);
-                setLightboxOpen(true);
-              }}
-              className="relative w-[320px] h-64 sm:h-72 lg:h-80 rounded-lg overflow-hidden group cursor-pointer"
-            >
-              <Image
-                src={imageSrc}
-                alt={`Event highlight ${index + 1}`}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300"></div>
-              {/* Click indicator */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white rounded-full p-3">
-                  <svg
-                    className="w-8 h-8 text-black"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="grid grid-cols-2 lg:grid-cols-6 lg:auto-rows-[15rem] gap-3 sm:gap-4">
+          {backgroundImages.map((imageSrc, index) => {
+            const isFeature = galleryLayout[index]?.includes("row-span-2");
+            return (
+              <button
+                key={imageSrc}
+                type="button"
+                onClick={() => {
+                  setLightboxIndex(index);
+                  setLightboxOpen(true);
+                }}
+                aria-label={`Open photo ${index + 1} of ${backgroundImages.length}`}
+                className={`group relative aspect-[3/2] lg:aspect-auto overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 shadow-lg shadow-black/30 transition-all duration-500 hover:ring-white/40 hover:shadow-2xl hover:shadow-black/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${galleryLayout[index] ?? "lg:col-span-2"}`}
+              >
+                <Image
+                  src={imageSrc}
+                  alt={`Social Justice Symposium highlight ${index + 1}`}
+                  fill
+                  sizes={
+                    isFeature
+                      ? "(min-width: 1024px) 66vw, 100vw"
+                      : "(min-width: 1024px) 33vw, 50vw"
+                  }
+                  className="object-cover grayscale-[40%] transition duration-700 ease-out group-hover:scale-105 group-hover:grayscale-0 group-focus-visible:grayscale-0"
+                />
+
+                {/* Legibility gradient */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-100" />
+
+                {/* Caption on the lead photo */}
+                {index === 0 && (
+                  <span className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 text-left">
+                    <span className="block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-white/70">
+                      Caldwell University
+                    </span>
+                    <span className="mt-1 block font-serif text-lg sm:text-2xl lg:text-3xl font-bold text-white">
+                      Social Justice Symposium
+                    </span>
+                  </span>
+                )}
+
+                {/* Expand affordance */}
+                <span className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/40 backdrop-blur-md transition-all duration-300 sm:translate-y-2 sm:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-hover:bg-white group-hover:text-black group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+                  <Maximize2 className="h-4 w-4" />
+                </span>
+              </button>
+            );
+          })}
         </div>
-      </div>
+      </section>
 
       {/* Lightbox Modal */}
       <Lightbox
@@ -367,8 +424,20 @@ export default function Home() {
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
         slides={slides}
+        plugins={[Counter, Thumbnails]}
+        thumbnails={{
+          width: 96,
+          height: 64,
+          border: 0,
+          borderRadius: 8,
+          padding: 0,
+          gap: 12,
+          vignette: true,
+        }}
         styles={{
           container: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
+          thumbnailsContainer: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
+          thumbnail: { backgroundColor: "transparent" },
         }}
       />
 
