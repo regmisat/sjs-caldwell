@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { isFullSiteEnabled } from "./lib/siteMode";
 import { updateSession } from "./utils/supabase/middleware";
 
 const isPublicRoute = createRouteMatcher([
@@ -16,6 +17,10 @@ const isPublicRoute = createRouteMatcher([
 const isApiRoute = createRouteMatcher(["/api(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  if (!isFullSiteEnabled() && req.nextUrl.pathname !== "/") {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   // Update Supabase session
   const { supabaseResponse, user: supabaseUser } = await updateSession(req);
 

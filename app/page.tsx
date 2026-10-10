@@ -15,6 +15,7 @@ import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { ArrowRight, Images, Maximize2 } from "lucide-react";
+import { useFullSite } from "@/components/SiteMode";
 
 // Array of background images
 const backgroundImages = [
@@ -46,6 +47,7 @@ const galleryLayout = [
 const EVENT_START_TIME = new Date("2026-02-27T09:00:00-05:00").getTime();
 
 export default function Home() {
+  const isFullSite = useFullSite();
   const router = useRouter();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -63,6 +65,12 @@ export default function Home() {
     const timer = setInterval(updateCountdownStatus, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const centered = !isFullSite || countdownEnded;
+  const themeTitle = isFullSite ? "RE:Claim Truth" : "The Power of Us";
+  const eventDateLabel = isFullSite
+    ? "Friday, February 27, 2026"
+    : "Friday, February 26, 2027";
 
   const slides = backgroundImages.map((src, index) => ({
     src,
@@ -82,7 +90,7 @@ export default function Home() {
       </div>
 
       {/* Header Navigation */}
-      <Header showSchedule={true} />
+      <Header showSchedule={isFullSite} />
 
       {/* Hero Section - Full viewport height */}
       <section className="relative z-10 h-[800px] grid place-content-center px-4 mt-40 md:mt-10">
@@ -99,13 +107,13 @@ export default function Home() {
           </div>
           <div
             className={`flex flex-wrap justify-center gap-8 lg:gap-16 ${
-              countdownEnded ? "items-center" : "items-start"
+              centered ? "items-center" : "items-start"
             }`}
           >
             {/* Text Content */}
             <div
               className={`space-y-4 sm:space-y-6 ${
-                countdownEnded
+                centered
                   ? "text-center max-w-3xl mx-auto"
                   : "text-center lg:text-left"
               }`}
@@ -113,7 +121,7 @@ export default function Home() {
               {/* Event Title */}
               <div className="mb-3 sm:mb-4">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 tracking-wide">
-                  Caldwell University's 5th Annual
+                  Caldwell University's 6th Annual
                 </h1>
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mt-1">
                   Social Justice Symposium
@@ -123,58 +131,73 @@ export default function Home() {
               {/* Reclaim Truth Heading */}
               <div className="mb-4 sm:mb-8">
                 <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-tight font-serif">
-                  RE:Claim Truth
+                  {themeTitle}
                 </h2>
                 <div
                   className={`w-16 sm:w-24 h-1 bg-white mt-3 sm:mt-4 ${
-                    countdownEnded ? "mx-auto" : "lg:mx-0 mx-auto"
+                    centered ? "mx-auto" : "lg:mx-0 mx-auto"
                   }`}
                 ></div>
-                {countdownEnded && (
+                {centered && (
                   <p className="text-lg sm:text-2xl md:text-3xl font-semibold text-white mt-5 sm:mt-6">
-                    Friday, February 27, 2026
+                    {eventDateLabel}
                   </p>
                 )}
               </div>
 
               <div className="mt-10 sm:mt-20">
-                <p className="text-white text-lg sm:text-xl font-semibold max-w-xl">
-                  We are SOLD OUT and registration is now closed! If you have
-                  questions, please email us at{" "}
-                  <a
-                    href="mailto:sji@caldwell.edu"
-                    className="underline hover:text-white/80 transition-colors"
-                  >
-                    sji@caldwell.edu
-                  </a>
-                  .
-                </p>
-
-                <div className="mt-6">
-                  <SignedOut>
-                    <SignInButton mode="modal">
-                      <button className="bg-white text-black hover:bg-white/90 font-semibold py-3 px-8 sm:px-12 rounded-lg transition-all duration-200 text-base sm:text-lg shadow-lg hover:shadow-xl">
-                        Sign In
-                      </button>
-                    </SignInButton>
-                  </SignedOut>
-
-                  <SignedIn>
-                    <a
-                      href="/dashboard"
-                      className="bg-white text-black hover:bg-white/90 font-semibold py-3 px-8 sm:px-12 rounded-lg transition-all duration-200 text-base sm:text-lg shadow-lg hover:shadow-xl"
-                    >
-                      Go to Dashboard
-                    </a>
-                    <p className="text-white text-sm mt-4">
-                      View your event details and QR code
+                {isFullSite ? (
+                  <>
+                    <p className="text-white text-lg sm:text-xl font-semibold max-w-xl">
+                      We are SOLD OUT and registration is now closed! If you have
+                      questions, please email us at{" "}
+                      <a
+                        href="mailto:sji@caldwell.edu"
+                        className="underline hover:text-white/80 transition-colors"
+                      >
+                        sji@caldwell.edu
+                      </a>
+                      .
                     </p>
-                  </SignedIn>
-                </div>
+
+                    <div className="mt-6">
+                      <SignedOut>
+                        <SignInButton mode="modal">
+                          <button className="bg-white text-black hover:bg-white/90 font-semibold py-3 px-8 sm:px-12 rounded-lg transition-all duration-200 text-base sm:text-lg shadow-lg hover:shadow-xl">
+                            Sign In
+                          </button>
+                        </SignInButton>
+                      </SignedOut>
+
+                      <SignedIn>
+                        <a
+                          href="/dashboard"
+                          className="bg-white text-black hover:bg-white/90 font-semibold py-3 px-8 sm:px-12 rounded-lg transition-all duration-200 text-base sm:text-lg shadow-lg hover:shadow-xl"
+                        >
+                          Go to Dashboard
+                        </a>
+                        <p className="text-white text-sm mt-4">
+                          View your event details and QR code
+                        </p>
+                      </SignedIn>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-white text-lg sm:text-xl font-semibold max-w-xl mx-auto">
+                    Registration coming soon! Questions? Please email us at{" "}
+                    <a
+                      href="mailto:sji@caldwell.edu"
+                      className="underline hover:text-white/80 transition-colors"
+                    >
+                      sji@caldwell.edu
+                    </a>
+                    .
+                  </p>
+                )}
               </div>
             </div>
 
-            {!countdownEnded && (
+            {isFullSite && !countdownEnded && (
               <div>
                 <div className="md:inline-block block">
                   <p className="text-sm sm:text-base md:text-lg font-medium text-white/90 tracking-wider uppercase text-center">
@@ -198,6 +221,7 @@ export default function Home() {
       </section>
 
       {/* Information Cards Section */}
+      {isFullSite && (
       <div className="relative z-10 max-w-6xl mx-auto mt-16 px-4 pb-20 sm:pb-24">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {/* View Schedule Card */}
@@ -330,6 +354,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Past Event Pictures Section */}
       <section

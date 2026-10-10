@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { SiteModeProvider } from "@/components/SiteMode";
+import { isFullSiteEnabled } from "@/lib/siteMode";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +20,11 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className="overflow-auto">{children}</body>
+        <body className="overflow-auto">
+          <SiteModeProvider isFullSite={isFullSiteEnabled()}>
+            {children}
+          </SiteModeProvider>
+        </body>
       </html>
     </ClerkProvider>
   );

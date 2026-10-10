@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useFullSite } from "./SiteMode";
 
 interface HeaderProps {
   showSchedule?: boolean;
@@ -19,6 +20,7 @@ const navLinks = [
 ];
 
 export default function Header({ showSchedule = true }: HeaderProps) {
+  const isFullSite = useFullSite();
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -89,6 +91,8 @@ export default function Header({ showSchedule = true }: HeaderProps) {
             />
           </button>
 
+          {isFullSite && (
+            <>
           {/* Desktop Navigation - Center */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 absolute left-1/2 transform -translate-x-1/2">
             {navLinks.map((link) => (
@@ -125,8 +129,11 @@ export default function Header({ showSchedule = true }: HeaderProps) {
               />
             </SignedIn>
           </div>
+            </>
+          )}
 
           {/* Mobile Menu Button */}
+          {isFullSite && (
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-all"
@@ -162,10 +169,11 @@ export default function Header({ showSchedule = true }: HeaderProps) {
               </svg>
             )}
           </button>
+          )}
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
+        {isFullSite && isMobileMenuOpen && (
           <div className="md:hidden py-4 space-y-1 border-t border-white/10">
             <nav className="flex flex-col">
               {navLinks.map((link) => {
