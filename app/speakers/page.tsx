@@ -764,10 +764,10 @@ export default function Speakers() {
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
                 <div className="pt-6 text-center">
                   <p className="text-lg sm:text-xl font-semibold text-white">
-                    Friday, February 27, 2026
+                    Friday, February 26, 2027
                   </p>
                   <p className="text-sm sm:text-base text-white/70 mt-2">
-                    Caldwell University's 5th Annual Social Justice Symposium
+                    Caldwell University's 6th Annual Social Justice Symposium
                   </p>
                 </div>
 

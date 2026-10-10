@@ -11,9 +11,6 @@ import Footer from "@/components/Footer";
 import Lightbox from "yet-another-react-lightbox";
 import Counter from "yet-another-react-lightbox/plugins/counter";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
-import "yet-another-react-lightbox/styles.css";
-import "yet-another-react-lightbox/plugins/counter.css";
-import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { ArrowRight, Images, Maximize2 } from "lucide-react";
 import { useFullSite } from "@/components/SiteMode";
 
@@ -67,10 +64,8 @@ export default function Home() {
   }, []);
 
   const centered = !isFullSite || countdownEnded;
-  const themeTitle = isFullSite ? "RE:Claim Truth" : "The Power of Us";
-  const eventDateLabel = isFullSite
-    ? "Friday, February 27, 2026"
-    : "Friday, February 26, 2027";
+  const themeTitle = "The Power of Us";
+  const eventDateLabel = "Friday, February 26, 2027";
 
   const slides = backgroundImages.map((src, index) => ({
     src,
