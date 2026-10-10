@@ -11,6 +11,9 @@ import Footer from "@/components/Footer";
 import Lightbox from "yet-another-react-lightbox";
 import Counter from "yet-another-react-lightbox/plugins/counter";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import "yet-another-react-lightbox/styles.css";
+import "yet-another-react-lightbox/plugins/counter.css";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { ArrowRight, Images, Maximize2 } from "lucide-react";
 import { useFullSite } from "@/components/SiteMode";
 
