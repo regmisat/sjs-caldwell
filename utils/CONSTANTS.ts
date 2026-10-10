@@ -1,8 +1,8 @@
 const ADMIN_EMAILS = [
-  "dibasdauliya@gmail.com",
   "regmisat@gmail.com",
-  "ssitnick@caldwell.edu",
   "hmcgowan@caldwell.edu",
+  "ssitnick@caldwell.edu",
+  "nsalerno@caldwell.edu",
   "nburgess@caldwell.edu",
   "nuricoli@caldwell.edu",
   "daucoin@caldwell.edu",
